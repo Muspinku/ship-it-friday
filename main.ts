@@ -24,6 +24,13 @@ writeFileSync(target, ENTRY, 'utf8');
 
 // Verify the write round-trips byte for byte: what the grader reads
 // must be exactly the entry above, with nothing appended or lost.
-if (readFileSync(target, 'utf8') !== ENTRY) {
+// Check raw bytes, not just the string: the file must be a single line
+// with no trailing newline, and its byte length must match the entry.
+const written = readFileSync(target);
+if (written.length !== Buffer.byteLength(ENTRY, 'utf8') || written[written.length - 1] === 0x0a) {
+  throw new Error('entry.txt has unexpected bytes (trailing newline or length mismatch)');
+}
+if (written.toString('utf8') !== ENTRY) {
   throw new Error('entry.txt does not match ENTRY after writing');
 }
+console.log(`wrote entry.txt: ${ENTRY.length} characters, ${written.length} bytes`);
